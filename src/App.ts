@@ -1,8 +1,8 @@
 import {contentView} from 'tabris';
 import {inject} from 'tabris-decorators';
+import jimp from 'jimp';
 import {MainViewModel} from './MainViewModel';
 import {MainView} from './MainView';
-import * as jimp from 'jimp';
 
 export class App {
 

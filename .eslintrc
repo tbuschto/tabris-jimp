@@ -21,7 +21,10 @@
       "arrowFunctions": true
     }
   },
-  "ignorePatterns": "node_modules",
+  "ignorePatterns": [
+    "node_modules",
+    "webpack.config.js"
+  ],
   "env": {
     "es6": true
   },

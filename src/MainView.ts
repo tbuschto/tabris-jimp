@@ -10,7 +10,7 @@ namespace internal {
     @bindAll({
       message: '#label.text'
     })
-    public model: MainViewModel;
+    model: MainViewModel;
 
     constructor(properties: Properties<MainView>) {
       super();

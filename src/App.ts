@@ -9,7 +9,7 @@ export class App {
     @inject private main: MainViewModel
   ) {}
 
-  public start() {
+  start() {
     contentView.append(
       MainView({stretch: true, model: this.main})
     );

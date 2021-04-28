@@ -9,6 +9,7 @@
     "start": "tabris serve -a -w"
   },
   "dependencies": {
+    "jimp": "^0.16.1",
     "tabris": "~3.7.1",
     "tabris-decorators": "~3.7.1"
   },

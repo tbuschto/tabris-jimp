@@ -6,8 +6,6 @@
     "lib": [
       "es2017"
     ],
-    "jsx": "react",
-    "jsxFactory": "JSX.createElement",
     "noImplicitAny": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
@@ -19,9 +17,6 @@
     "typeRoots": ["node_modules/@types"]
   },
   "include": [
-    "./src/**/*.ts",
-    "./src/**/*.tsx",
-    "./src/**/*.js",
-    "./src/**/*.jsx"
+    "./src/**/*.ts"
   ]
 }

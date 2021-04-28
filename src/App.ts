@@ -11,7 +11,7 @@ export class App {
 
   public start() {
     contentView.append(
-      <MainView stretch model={this.main}/>
+      MainView({stretch: true, model: this.main})
     );
   }
 

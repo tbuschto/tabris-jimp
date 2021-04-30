@@ -2,7 +2,8 @@ const webpack = require('webpack');
 
 module.exports = {
   entry: {
-    index: './src/index.ts'
+    index: './src/index.ts',
+    worker: './src-image-worker/index.ts'
   },
   externals: ['tabris', 'tabris-decorators'],
   plugins: [

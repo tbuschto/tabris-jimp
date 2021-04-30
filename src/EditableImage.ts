@@ -1,53 +1,62 @@
-import {Image, Listeners} from 'tabris';
-import {event, injectable} from 'tabris-decorators';
-import Jimp from 'jimp';
+import {ChangeListeners} from 'tabris';
+import {injectable, event, prop} from 'tabris-decorators';
+import {MSG_EDIT, MSG_LOAD, MSG_LOG} from '../src-common/const';
+import {WorkerRequest, WorkerResponse} from '../src-common/types';
+import {WorkerExt} from '../src-common/WorkerExt';
 
 @injectable
-export class EditableImage {
+export class EditableImage extends WorkerExt<WorkerResponse, WorkerRequest> {
 
-  @event onUpdate: Listeners<{target: EditableImage}>;
-  ready: Promise<this>;
+  @prop preview: Blob;
+  @event onPreviewChanged: ChangeListeners<EditableImage, 'preview'>;
 
-  private image: Jimp;
-  private cached: Blob;
+  private _ready: Promise<this>;
   private done: () => void;
 
+  constructor() {
+    super(new Worker('dist/worker.js'));
+    this.onMessage(({data}) => data.type === MSG_LOG ? this.log(data.message) : null);
+  }
+
+  get ready() {
+    return this._ready;
+  }
+
   async load(encoded: Blob): Promise<this> {
+    this.log('Loading...');
     this.busy();
-    this.cached = encoded;
-    this.onUpdate.trigger();
-    this.image = await Jimp.read(Buffer.from(await encoded.arrayBuffer()));
+    this.preview = encoded;
+    await this.postAsync(
+      await encoded.arrayBuffer(),
+      data => data.type === 'ready'
+    );
     this.done();
     return this;
   }
 
-  edit(ops: string[]) {
+  async edit(ops: string[]) {
+    // const opName: keyof Jimp = 'blur';
+    // const opArgs: Parameters<Jimp['blur']> = [2];
+    // this.image[opName](opArgs[0]);
     const now = Date.now();
-    this.cached = null;
-    this.image.grayscale();
-    this.onUpdate.trigger();
+    const result = await this.postAsync(
+      {type: MSG_EDIT, ops: []},
+      data => data instanceof ArrayBuffer ? data : null
+    );
     console.info(ops, ':' + (Date.now() - now) + ' ms');
+    this.preview = new Blob([result]);
   }
 
-  async snapShot(): Promise<Blob> {
-    await this.ready;
-    if (!this.cached) {
-      this.busy();
-      const now = Date.now();
-      this.image.quality(60);
-      this.cached = await this.toBlob(Jimp.MIME_JPEG);
-      console.info('encode:' + (Date.now() - now) + ' ms');
-      this.done();
+  protected log(msg: string | Error) {
+    if (msg instanceof Error) {
+      console.error(this.constructor.name, msg);
+    } else {
+      console.info(this.constructor.name, msg);
     }
-    return this.cached;
-  }
-
-  private async toBlob(type: string): Promise<Blob> {
-    return new Blob([(await this.image.getBufferAsync(type)).buffer]);
   }
 
   private busy(): void {
-    this.ready = new Promise(resolve => this.done = () => resolve(this));
+    this._ready = new Promise(resolve => this.done = () => resolve(this));
   }
 
 }

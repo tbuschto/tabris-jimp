@@ -10,10 +10,11 @@ export class MainViewModel {
   @property snapshot: Image;
   @property busy: boolean = false;
 
-  @inject private imageProvider: ImageProvider;
-  private image: EditableImage;
+  @inject private readonly imageProvider: ImageProvider;
+  @inject private readonly image: EditableImage;
 
   constructor() {
+    this.image.onPreviewChanged(({value}) => this.snapshot = Image.from(value));
     this.loadRandom().catch(ex => console.error(ex));
   }
 
@@ -23,25 +24,20 @@ export class MainViewModel {
     }
     this.busy = true;
     this.message = 'Loading image';
-    this.image = await this.imageProvider.getRandom();
-    await this.update();
+    await this.image.load(await this.imageProvider.getRandom())
+      .catch(ex => console.error(ex));
+    this.busy = false;
+    this.message = `Done (${Math.ceil(this.image.preview.size / 1024)} KB)`;
   }
 
   async edit() {
-    if (!this.image || this.busy) {
+    if (this.busy) {
       return;
     }
     this.busy = true;
     this.message = 'Editing';
-    const image = await this.image.ready;
-    image.edit(['grayscale']);
-    await this.update();
-  }
-
-  private async update() {
-    const blob = await this.image.snapShot();
-    this.snapshot = Image.from(blob);
-    this.message = `Done (${Math.ceil(blob.size / 1000)} KB)`;
+    await this.image.edit(['grayscale']);
+    this.message = `Done (${Math.ceil(this.image.preview.size / 1024)} KB)`;
     this.busy = false;
   }
 

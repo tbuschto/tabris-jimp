@@ -20,6 +20,8 @@
     ]
   },
   "include": [
-    "./src/**/*.ts"
+    "./src/**/*.ts",
+    "./src-image-worker/**/*.ts",
+    "./src-common/**/*.ts"
   ]
 }
